@@ -52,7 +52,7 @@ export function fixedColumn(
     );
 
     const positions: Position[] = [];
-    const columnHeights: number[] = Array.from({length: columnCount}).fill(0);
+    const columnHeights: number[] = Array.from({length: columnCount}, () => 0);
 
     // Distribute images to columns as evenly as possible
     for (const element of elements) {
@@ -306,12 +306,14 @@ function linearPartition(seq: number[], k: number): AspectRatioGrid {
     }
 
     // Set up linear partition tables
-    const table: number[][] = Array.from(new Array(n), () =>
-        new Array(k).fill(0),
-    ); // Size: (n) x (k)
+    // Size: (n) x (k)
+    const table: number[][] = Array.from(Array.from({length: n}), () =>
+        Array.from({length: k}, () => 0),
+    );
+    // Size: (n-1) x (k-1)
     const solution: number[][] = Array.from(Array.from({length: n - 1}), () =>
-        Array.from({length: k - 1}).fill(0),
-    ); // Size: (n-1) x (k-1)
+        Array.from({length: k - 1}, () => 0),
+    );
 
     for (let i = 0; i < n; i++) {
         table[i][0] = seq[i] + (i ? table[i - 1][0] : 0);
@@ -323,7 +325,8 @@ function linearPartition(seq: number[], k: number): AspectRatioGrid {
 
     for (let i = 1; i < n; i++) {
         for (let j = 1; j < k; j++) {
-            const m = [...new Array(i).keys()].reduce(
+            // eslint-disable-next-line unicorn/no-array-reduce
+            const m = [...Array.from({length: i}).keys()].reduce(
                 (min: [number, number], x: number) => {
                     const tableValue = Math.max(
                         table[x][j - 1],
@@ -346,7 +349,8 @@ function linearPartition(seq: number[], k: number): AspectRatioGrid {
         // Append to beginning of array
         // python: [seq[i] for i in range(solution[n-1][k]+1, n+1)]
         ans.unshift(
-            [...new Array(_n + 1 - (solution[_n - 1][_k] + 1)).keys()].map(
+            [...Array.from({length: _n + 1 - (solution[_n - 1][_k] + 1)}).keys()].map(
+                // eslint-disable-next-line @typescript-eslint/no-loop-func
                 i => seq[i + solution[_n - 1][_k] + 1],
             ),
         );
@@ -354,7 +358,7 @@ function linearPartition(seq: number[], k: number): AspectRatioGrid {
         _k--;
     }
 
-    ans.unshift([...new Array(_n + 1).keys()].map(i => seq[i]));
+    ans.unshift([...Array.from({length: _n + 1}).keys()].map(i => seq[i]));
 
     return ans;
 }
