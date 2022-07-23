@@ -1,4 +1,5 @@
 import {Size} from 'types';
+import {sum} from 'utils';
 
 export interface Position {
     x: number;
@@ -27,13 +28,6 @@ export interface FixedPartitionConfig {
     maxHeight?: number;
     idealElementHeight?: number;
     spacing?: number;
-}
-
-function sum<T>(iter: T[], callback?: (arg: T) => number): number {
-    // TODO: cleanup no callback case with just numbers
-    return callback
-        ? iter.reduce((sum, element) => sum + callback(element), 0)
-        : iter.reduce((sum, x) => sum + Number(x), 0);
 }
 
 export function fixedColumn(
