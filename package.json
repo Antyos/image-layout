@@ -8,6 +8,9 @@
   },
   "author": "Andrew Glick",
   "license": "ISC",
+  "dependencies": {
+    "konva": "^8.3.10"
+  },
   "devDependencies": {
     "typescript": "^4.7.4",
     "xo": "^0.51.0"
