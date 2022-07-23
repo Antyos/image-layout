@@ -3,9 +3,9 @@ import {GetSet} from 'konva/lib/types';
 import {Shape} from 'konva/lib/Shape';
 import {ContainerConfig} from 'konva/lib/Container';
 import {Node} from 'konva/lib/Node';
-import {Origin, Size} from '../types';
-import {KonvaNode} from '../decorators';
-import {getset} from '../decorators/getset';
+import {Origin, Size} from './types';
+import {KonvaNode} from './decorators';
+import {getset} from './decorators/getset';
 import {fixedPartition} from './image-layout';
 
 export enum LayoutType {
