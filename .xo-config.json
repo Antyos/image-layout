@@ -1,3 +1,6 @@
 {
-    "space": 4
+    "space": 4,
+    "rules": {
+        "import/extensions": "off"
+    }
 }
