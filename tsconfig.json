@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "baseUrl": "src",
+        "outDir": "lib",
+        "inlineSourceMap": true,
+        "noImplicitAny": true,
+        "module": "esnext",
+        "target": "es2020",
+        "allowJs": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "declaration": true,
+        "declarationMap": true,
+        "allowSyntheticDefaultImports": true,
+        "experimentalDecorators": true,
+    },
+    "include": ["src"],
+    "exclude": ["src/**/*.test.*"],
+}

@@ -1,0 +1,15 @@
+{
+  "name": "image-layout",
+  "version": "0.1.0",
+  "description": "An image layout tool",
+  "main": "index.ts",
+  "scripts": {
+    "test": "xo"
+  },
+  "author": "Andrew Glick",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^4.7.4",
+    "xo": "^0.51.0"
+  }
+}
