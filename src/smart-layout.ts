@@ -6,7 +6,7 @@ import {Node} from 'konva/lib/Node';
 import {Origin, Size} from '../types';
 import {KonvaNode} from '../decorators';
 import {getset} from '../decorators/getset';
-import {fixedPartition} from './ImageLayout';
+import {fixedPartition} from './image-layout';
 
 export enum LayoutType {
     FixedColumns = 1,
@@ -71,20 +71,6 @@ export class SmartLayout extends Group {
         return this;
     }
 
-    private getMaxWidthWithMargin() {
-        return this.maxWidth() - this.getMargin().left - this.getMargin().right;
-    }
-
-    private getMaxHeightWithMargin() {
-        return this.maxHeight() !== null
-            ? this.maxHeight() - this.getMargin().top - this.getMargin().bottom
-            : null;
-    }
-
-    private getOriginalChildSizes() {
-        return this.children.map(child => this.originalChildSizesMap.get(child));
-    }
-
     public recalculateLayout() {
         if (!this.children || this.lockedLayout) {
             return;
@@ -116,12 +102,12 @@ export class SmartLayout extends Group {
             child.position({
                 x:
           position.x
-          - (offset.x + margin.left) * scale.x
-          - this.contentSize.width / 2,
+          - ((offset.x + margin.left) * scale.x)
+          - (this.contentSize.width / 2),
                 y:
           position.y
-          - (offset.y + margin.top) * scale.y
-          - this.contentSize.height / 2,
+          - ((offset.y + margin.top) * scale.y)
+          - (this.contentSize.height / 2),
             });
             // Child.position({x:0, y:0})
 
@@ -163,5 +149,17 @@ export class SmartLayout extends Group {
         }
 
         console.warn('locked');
+    }
+
+    private getMaxWidthWithMargin() {
+        return this.maxWidth() - this.getMargin().left - this.getMargin().right;
+    }
+
+    private getMaxHeightWithMargin() {
+        return this.maxHeight() === null ? null : this.maxHeight() - this.getMargin().top - this.getMargin().bottom;
+    }
+
+    private getOriginalChildSizes() {
+        return this.children.map(child => this.originalChildSizesMap.get(child));
     }
 }
