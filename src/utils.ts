@@ -1,5 +1,10 @@
-export function sum<T>(iter: T[], callback?: (arg: T) => number): number {
+// See: https://stackoverflow.com/a/73094037/3721066
+export function sum<T>(
+    ...[iter, callback]:
+    | [iter: number[], callback?: undefined]
+    | [iter: T[], callback: (arg: T) => number]
+): number {
     return callback
-        ? iter.reduce((sum, element) => sum + callback(element), 0)
-        : iter.reduce((sum, x) => sum + Number(x), 0);
+        ? (iter as T[]).reduce((sum, element) => sum + callback(element), 0)
+        : (iter as number[]).reduce((sum, x) => sum + x, 0);
 }
