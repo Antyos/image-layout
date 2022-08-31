@@ -1,6 +1,8 @@
 {
     "space": 4,
+    "prettier": true,
     "rules": {
-        "import/extensions": "off"
+        "import/extensions": "off",
+        "no-mixed-operators": "off"
     }
 }
