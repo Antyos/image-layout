@@ -46,15 +46,7 @@ export function fixedPartition(
         const padLeft
             = options.align === 'center'
                 ? (() => {
-                    const spaceNeeded
-                          = sum(
-                              aspects,
-                              aspect =>
-                                  (Math.round(idealHeight * aspect)
-                                      - (spacing * (aspects.length - 1)))
-                                  / aspects.length,
-                          )
-                          + ((aspects.length - 1) * spacing);
+                    const spaceNeeded = getRowWidth(aspects, idealHeight, spacing);
                     // Pad xPos
                     return Math.floor((containerWidth - spaceNeeded) / 2);
                 })()
@@ -80,9 +72,29 @@ export function fixedPartition(
         rowsNeeded,
     );
 
+    return layoutGridByRows(partitions, options);
+}
+
+function getRowWidth(aspects: number[], idealHeight: number, spacing: number) {
+    return sum(
+        aspects,
+        aspect => (Math.round(idealHeight * aspect)
+            - (spacing * (aspects.length - 1)))
+            / aspects.length,
+    )
+        + ((aspects.length - 1) * spacing);
+}
+
+export function layoutGridByRows(
+    imageAspects: number[][],
+    options: FixedPartitionConfig,
+): ImageLayout {
+    const spacing = options.spacing ?? 0;
+    const containerWidth = options.maxWidth;
+
     const layoutOptions = {spacing: options.spacing};
     const layoutHeight = getLayoutHeight(
-        partitions,
+        imageAspects,
         containerWidth,
         layoutOptions,
     );
@@ -94,18 +106,18 @@ export function fixedPartition(
         const width
             = (options.maxHeight
                 - (spacing
-                    * (partitions.length
+                    * (imageAspects.length
                         - 1
                         - sum(
-                            partitions,
+                            imageAspects,
                             row => (row.length - 1) / sum(row),
                         ))))
-            / sum(partitions, row => 1 / sum(row));
+            / sum(imageAspects, row => 1 / sum(row));
 
         return {
             width,
             height: options.maxHeight,
-            positions: layoutSeveralRows(partitions, width, layoutOptions),
+            positions: layoutSeveralRows(imageAspects, width, layoutOptions),
         };
     }
 
@@ -113,7 +125,7 @@ export function fixedPartition(
     return {
         width: containerWidth,
         height: layoutHeight,
-        positions: layoutSeveralRows(partitions, containerWidth, layoutOptions),
+        positions: layoutSeveralRows(imageAspects, containerWidth, layoutOptions),
     };
 }
 
