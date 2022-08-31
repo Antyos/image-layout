@@ -14,7 +14,7 @@ export default function linearPartition(seq: number[], k: number): number[][] {
     }
 
     if (k > n) {
-        return seq.map(x => [x]);
+        return seq.map((x) => [x]);
     }
 
     // Set up linear partition tables
@@ -63,14 +63,14 @@ export default function linearPartition(seq: number[], k: number): number[][] {
         ans.unshift(
             [...Array.from({length: _n + 1 - (solution[_n - 1][_k] + 1)}).keys()].map(
                 // eslint-disable-next-line @typescript-eslint/no-loop-func
-                i => seq[i + solution[_n - 1][_k] + 1],
+                (i) => seq[i + solution[_n - 1][_k] + 1],
             ),
         );
         _n = solution[_n - 1][_k];
         _k--;
     }
 
-    ans.unshift([...Array.from({length: _n + 1}).keys()].map(i => seq[i]));
+    ans.unshift([...Array.from({length: _n + 1}).keys()].map((i) => seq[i]));
 
     return ans;
 }

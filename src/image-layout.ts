@@ -27,7 +27,7 @@ export function fixedPartition(
     const idealHeight = options.idealElementHeight ?? containerWidth / 3;
 
     // Calculate aspect ratio of all photos
-    const aspects = elements.map(element => element.width / element.height);
+    const aspects = elements.map((element) => element.width / element.height);
 
     // Calculate total width of all photos
     const summedWidth = sum(aspects) * idealHeight;
@@ -39,17 +39,15 @@ export function fixedPartition(
     if (rowsNeeded < 1) {
         // (2a) Fallback to just standard size
         // If options.maxHeight is defined and less than idealHeight, use it as the height
-        const height
-            = options?.maxHeight < idealHeight ? options.maxHeight : idealHeight;
+        const height =
+            options?.maxHeight < idealHeight ? options.maxHeight : idealHeight;
 
         // Get amount to pad left for centering
-        const padLeft
-            = options.align === 'center'
-                ? (() => {
-                    const spaceNeeded = getRowWidth(aspects, idealHeight, spacing);
-                    // Pad xPos
-                    return Math.floor((containerWidth - spaceNeeded) / 2);
-                })()
+        const padLeft =
+            options.align === 'center'
+                ? Math.floor(
+                      (containerWidth - getRowWidth(aspects, idealHeight, spacing)) / 2,
+                  )
                 : 0;
 
         const positions = layoutSingleRow(aspects, height, {
@@ -76,13 +74,15 @@ export function fixedPartition(
 }
 
 function getRowWidth(aspects: number[], idealHeight: number, spacing: number) {
-    return sum(
-        aspects,
-        aspect => (Math.round(idealHeight * aspect)
-            - (spacing * (aspects.length - 1)))
-            / aspects.length,
-    )
-        + ((aspects.length - 1) * spacing);
+    return (
+        sum(
+            aspects,
+            (aspect) =>
+                (Math.round(idealHeight * aspect) - spacing * (aspects.length - 1)) /
+                aspects.length,
+        ) +
+        (aspects.length - 1) * spacing
+    );
 }
 
 export function layoutGridByRows(
@@ -93,26 +93,19 @@ export function layoutGridByRows(
     const containerWidth = options.maxWidth;
 
     const layoutOptions = {spacing: options.spacing};
-    const layoutHeight = getLayoutHeight(
-        imageAspects,
-        containerWidth,
-        layoutOptions,
-    );
+    const layoutHeight = getLayoutHeight(imageAspects, containerWidth, layoutOptions);
 
     // Recalculate container if we exceeded the maximum height
     // WIP
     if (layoutHeight > options?.maxHeight) {
         // Get new width based on maxHeight
-        const width
-            = (options.maxHeight
-                - (spacing
-                    * (imageAspects.length
-                        - 1
-                        - sum(
-                            imageAspects,
-                            row => (row.length - 1) / sum(row),
-                        ))))
-            / sum(imageAspects, row => 1 / sum(row));
+        const width =
+            (options.maxHeight -
+                spacing *
+                    (imageAspects.length -
+                        1 -
+                        sum(imageAspects, (row) => (row.length - 1) / sum(row)))) /
+            sum(imageAspects, (row) => 1 / sum(row));
 
         return {
             width,
@@ -138,7 +131,7 @@ function getRowHeight(
     options?: {spacing?: number},
 ): number {
     const spacing = options?.spacing ?? 0;
-    return (rowWidth - (spacing * (aspects.length - 1))) / sum(aspects);
+    return (rowWidth - spacing * (aspects.length - 1)) / sum(aspects);
 }
 
 /**
@@ -150,8 +143,8 @@ function getLayoutHeight(
     options?: {spacing?: number},
 ): number {
     return (
-        sum(aspects, row => getRowHeight(row, containerWidth, options))
-        + ((options?.spacing ?? 0) * (aspects.length - 1))
+        sum(aspects, (row) => getRowHeight(row, containerWidth, options)) +
+        (options?.spacing ?? 0) * (aspects.length - 1)
     );
 }
 

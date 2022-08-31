@@ -6,10 +6,7 @@ export interface FixedColumnConfig {
     spacing?: number;
 }
 
-export function fixedColumn(
-    elements: Size[],
-    options: FixedColumnConfig,
-): ImageLayout {
+export function fixedColumn(elements: Size[], options: FixedColumnConfig): ImageLayout {
     const spacing = options.spacing ?? 0;
     const containerWidth = options.maxWidth;
     const columnCount = options.columnCount ?? 3;
@@ -18,7 +15,7 @@ export function fixedColumn(
     }
 
     const columnWidth = Math.round(
-        (containerWidth - ((columnCount - 1) * spacing)) / columnCount,
+        (containerWidth - (columnCount - 1) * spacing) / columnCount,
     );
 
     const positions: Position[] = [];
