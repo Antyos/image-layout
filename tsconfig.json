@@ -15,5 +15,7 @@
         "experimentalDecorators": true,
     },
     "include": ["src"],
-    "exclude": ["src/**/*.test.*"],
+    // Uncommenting this breaks the deepCloseTo patch. Not sure if it is better to be uncommented, though.
+    // Roughly based on: https://youtrack.jetbrains.com/issue/WEB-42350/matcher-for-jest-is-not-recognized-but-it-is-runable#focus=Comments-27-3779595.0-0
+    // "exclude": ["src/**/*.test.*"],
 }
