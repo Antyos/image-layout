@@ -1,6 +1,7 @@
 {
     "endOfLine": "auto",
+    "printWidth": 88,
+    "singleQuote": true,
     "tabWidth": 4,
-    "useTabs": false,
-    "printWidth": 88
+    "useTabs": false
 }
