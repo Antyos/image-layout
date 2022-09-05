@@ -7,7 +7,7 @@
         "test": "xo"
     },
     "author": "Andrew Glick",
-    "license": "ISC",
+    "license": "MIT",
     "devDependencies": {
         "typescript": "^4.7.4",
         "xo": "^0.51.0"
