@@ -1,6 +1,6 @@
-import linearPartition from 'linear-partition';
-import {AspectRatioGrid, ImageLayout, Position, Size} from 'types';
-import {sum} from 'utils';
+import {AspectRatioGrid, ImageLayout, Position, Size} from './types';
+import linearPartition from './linear-partition';
+import {sum} from './utils';
 
 export interface FixedPartitionConfig {
     align?: 'center' | undefined;
