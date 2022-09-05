@@ -1,6 +1,6 @@
-import {AspectRatioGrid, ImageLayout, Position, Size} from './types';
+import { AspectRatioGrid, ImageLayout, Position, Size } from './types';
 import linearPartition from './linear-partition';
-import {sum} from './utils';
+import { sum } from './utils';
 
 export interface FixedPartitionConfig {
     align?: 'center' | undefined;
@@ -52,7 +52,7 @@ export function fixedPartition(
 
         const positions = layoutSingleRow(aspects, height, {
             spacing,
-            offset: {x: padLeft},
+            offset: { x: padLeft },
         });
         // Return layout
         return {
@@ -92,7 +92,7 @@ export function layoutGridByRows(
     const spacing = options.spacing ?? 0;
     const containerWidth = options.maxWidth;
 
-    const layoutOptions = {spacing: options.spacing};
+    const layoutOptions = { spacing: options.spacing };
     const layoutHeight = getLayoutHeight(imageAspects, containerWidth, layoutOptions);
 
     // Recalculate container if we exceeded the maximum height
@@ -128,7 +128,7 @@ export function layoutGridByRows(
 function getRowHeight(
     aspects: number[],
     rowWidth: number,
-    options?: {spacing?: number},
+    options?: { spacing?: number },
 ): number {
     const spacing = options?.spacing ?? 0;
     return (rowWidth - spacing * (aspects.length - 1)) / sum(aspects);
@@ -140,7 +140,7 @@ function getRowHeight(
 function getLayoutHeight(
     aspects: AspectRatioGrid,
     containerWidth: number,
-    options?: {spacing?: number},
+    options?: { spacing?: number },
 ): number {
     return (
         sum(aspects, (row) => getRowHeight(row, containerWidth, options)) +
@@ -156,7 +156,7 @@ function layoutSingleRow(
     height: number,
     options?: {
         spacing?: number;
-        offset?: {x?: number; y?: number};
+        offset?: { x?: number; y?: number };
     },
 ): Position[] {
     let xOffset = options?.offset.x ?? 0;
@@ -185,7 +185,7 @@ function layoutSeveralRows(
     width: number,
     options?: {
         spacing?: number;
-        offset?: {x?: number; y?: number};
+        offset?: { x?: number; y?: number };
     },
 ): Position[] {
     const xOffset = options?.offset?.x ?? 0;
@@ -198,7 +198,7 @@ function layoutSeveralRows(
         positions.push(
             ...layoutSingleRow(rowAspects, rowHeight, {
                 spacing,
-                offset: {x: xOffset, y: yOffset},
+                offset: { x: xOffset, y: yOffset },
             }),
         );
         yOffset += rowHeight + spacing;
