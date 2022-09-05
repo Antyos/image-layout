@@ -1,5 +1,5 @@
 import linearPartition from 'linear-partition';
-import {AspectRatioGrid, ImageLayout, Position, Size} from 'types';
+import {ImageLayout, Position, Size} from 'types';
 import {sum} from 'utils';
 
 export interface FixedPartitionConfig {
@@ -29,6 +29,10 @@ class SingleRowLayout {
         this.maxHeight = config.maxHeight;
     }
 
+    public get length() {
+        return this.children.length;
+    }
+
     /**
      * Get height of a row of aspect ratios from the width and spacing
      */
@@ -47,6 +51,10 @@ class SingleRowLayout {
             ) +
             (this.children.length - 1) * this.spacing
         );
+    }
+
+    public getAspectRatioSum() {
+        return sum(this.children);
     }
 
     /**
@@ -82,16 +90,29 @@ class SingleRowLayout {
 // Will eventually be a generic column layout
 class MultiRowLayout {
     public readonly spacing: number;
-    private readonly maxWidth?: number;
-    private readonly maxHeight?: number;
+    private readonly containerWidth?: number;
+    private readonly containerHeight?: number;
 
     public constructor(
         private readonly children: SingleRowLayout[],
         config: RowLayoutConfig,
     ) {
         this.spacing = config.spacing ?? 0;
-        this.maxWidth = config.maxWidth;
-        this.maxHeight = config.maxHeight;
+        // Determine the container width and height based on potential maximums
+        // Definitely a more elegant way exists
+        if (config.maxWidth !== undefined && config.maxHeight !== undefined) {
+            const layoutHeight = this.getLayoutHeight(config.maxWidth);
+            if (layoutHeight > config.maxHeight) {
+                this.containerHeight = config.maxHeight;
+                this.containerWidth = this.getLayoutWidth(config.maxHeight);
+            } else {
+                this.containerWidth = config.maxWidth;
+                this.containerHeight = layoutHeight;
+            }
+        } else if (config.maxWidth !== undefined && config.maxHeight === undefined) {
+            this.containerWidth = config.maxWidth;
+            this.containerHeight = this.getLayoutHeight(config.maxWidth);
+        }
     }
 
     /**
@@ -101,6 +122,21 @@ class MultiRowLayout {
         return (
             sum(this.children, (row) => row.getRowHeight(width)) +
             this.spacing * (this.children.length - 1)
+        );
+    }
+
+    // Not going to work as is
+    public getLayoutWidth(height: number): number {
+        return (
+            (height -
+                this.spacing *
+                    (this.children.length -
+                        1 -
+                        sum(
+                            this.children,
+                            (row) => (row.length - 1) / row.getAspectRatioSum(),
+                        ))) /
+            sum(this.children, (row) => 1 / row.getAspectRatioSum())
         );
     }
 
@@ -205,13 +241,7 @@ export function layoutGridByRows(
     // WIP
     if (layoutHeight > options?.maxHeight) {
         // Get new width based on maxHeight
-        const width =
-            (options.maxHeight -
-                spacing *
-                    (imageAspects.length -
-                        1 -
-                        sum(imageAspects, (row) => (row.length - 1) / sum(row)))) /
-            sum(imageAspects, (row) => 1 / sum(row));
+        const width = 0;
 
         return {
             width,
