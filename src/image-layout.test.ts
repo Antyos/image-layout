@@ -20,7 +20,33 @@ describe('Grid layout bounds with no spacing', () => {
                 { height: 120, width: 90, x: 0, y: 80 },
                 { height: 120, width: 210, x: 90, y: 80 },
             ],
-            1,
+            2,
         );
+
+        expect(layout.height).toBeCloseTo(200);
+        expect(layout.width).toBeCloseTo(300);
     });
+});
+
+test('Layout spacing', () => {
+    const aspects = [
+        [1.25, 1.5, 1],
+        [0.75, 1.75],
+    ];
+
+    const layout = layoutGridByRows(aspects, { maxWidth: 300, spacing: 10 });
+
+    expect(layout.positions).toBeDeepCloseTo(
+        [
+            { height: 74.67, width: 93, x: 0, y: 0 },
+            { height: 74.67, width: 112, x: 103, y: 0 },
+            { height: 74.67, width: 75, x: 225, y: 0 },
+            { height: 116, width: 87, x: 0, y: 84.67 },
+            { height: 116, width: 203, x: 97, y: 84.67 },
+        ],
+        2,
+    );
+
+    expect(layout.height).toBeCloseTo(200.67);
+    expect(layout.width).toBeCloseTo(300);
 });
