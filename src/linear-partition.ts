@@ -19,12 +19,12 @@ export default function linearPartition(seq: number[], k: number): number[][] {
 
     // Set up linear partition tables
     // Size: (n) x (k)
-    const table: number[][] = Array.from(Array.from({length: n}), () =>
-        Array.from({length: k}, () => 0),
+    const table: number[][] = Array.from(Array.from({ length: n }), () =>
+        Array.from({ length: k }, () => 0),
     );
     // Size: (n-1) x (k-1)
-    const solution: number[][] = Array.from(Array.from({length: n - 1}), () =>
-        Array.from({length: k - 1}, () => 0),
+    const solution: number[][] = Array.from(Array.from({ length: n - 1 }), () =>
+        Array.from({ length: k - 1 }, () => 0),
     );
 
     for (let i = 0; i < n; i++) {
@@ -38,7 +38,7 @@ export default function linearPartition(seq: number[], k: number): number[][] {
     for (let i = 1; i < n; i++) {
         for (let j = 1; j < k; j++) {
             // eslint-disable-next-line unicorn/no-array-reduce
-            const m = [...Array.from({length: i}).keys()].reduce(
+            const m = [...Array.from({ length: i }).keys()].reduce(
                 (min: [number, number], x: number) => {
                     const tableValue = Math.max(
                         table[x][j - 1],
@@ -61,7 +61,7 @@ export default function linearPartition(seq: number[], k: number): number[][] {
         // Append to beginning of array
         // python: [seq[i] for i in range(solution[n-1][k]+1, n+1)]
         ans.unshift(
-            [...Array.from({length: _n + 1 - (solution[_n - 1][_k] + 1)}).keys()].map(
+            [...Array.from({ length: _n + 1 - (solution[_n - 1][_k] + 1) }).keys()].map(
                 // eslint-disable-next-line @typescript-eslint/no-loop-func
                 (i) => seq[i + solution[_n - 1][_k] + 1],
             ),
@@ -70,7 +70,7 @@ export default function linearPartition(seq: number[], k: number): number[][] {
         _k--;
     }
 
-    ans.unshift([...Array.from({length: _n + 1}).keys()].map((i) => seq[i]));
+    ans.unshift([...Array.from({ length: _n + 1 }).keys()].map((i) => seq[i]));
 
     return ans;
 }

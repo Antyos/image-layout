@@ -1,6 +1,6 @@
-import linearPartition from 'linear-partition';
-import {ImageLayout, Position, Size} from 'types';
-import {sum} from 'utils';
+import { AspectRatioGrid, ImageLayout, Position, Size } from './types';
+import linearPartition from './linear-partition';
+import { sum } from './utils';
 
 export interface FixedPartitionConfig {
     align?: 'center' | undefined;
@@ -63,7 +63,7 @@ class SingleRowLayout {
     public layoutSingleRow(
         height: number,
         options?: {
-            offset?: {x?: number; y?: number};
+            offset?: { x?: number; y?: number };
         },
     ): Position[] {
         let xOffset = options?.offset.x ?? 0;
@@ -143,7 +143,7 @@ class MultiRowLayout {
     public layoutSeveralRows(
         width: number,
         options?: {
-            offset?: {x?: number; y?: number};
+            offset?: { x?: number; y?: number };
         },
     ): Position[] {
         const xOffset = options?.offset?.x ?? 0;
@@ -154,7 +154,7 @@ class MultiRowLayout {
             // Reconstruct row based on aspect ratios
             positions.push(
                 ...row.layoutSingleRow(rowHeight, {
-                    offset: {x: xOffset, y: yOffset},
+                    offset: { x: xOffset, y: yOffset },
                 }),
             );
             yOffset += rowHeight + this.spacing;
@@ -206,7 +206,7 @@ export function fixedPartition(
 
         const positions = layoutSingleRow(aspects, height, {
             spacing,
-            offset: {x: padLeft},
+            offset: { x: padLeft },
         });
         // Return layout
         return {
@@ -227,6 +227,10 @@ export function fixedPartition(
     return layoutGridByRows(partitions, options);
 }
 
+function getRowWidth(aspects: number[], height: number, spacing: number) {
+    return Math.round(sum(aspects) * height) + (aspects.length - 1) * spacing;
+}
+
 export function layoutGridByRows(
     imageAspects: number[][],
     options: FixedPartitionConfig,
@@ -234,14 +238,20 @@ export function layoutGridByRows(
     const spacing = options.spacing ?? 0;
     const containerWidth = options.maxWidth;
 
-    const layoutOptions = {spacing: options.spacing};
+    const layoutOptions = { spacing: options.spacing };
     const layoutHeight = getLayoutHeight(imageAspects, containerWidth, layoutOptions);
 
     // Recalculate container if we exceeded the maximum height
     // WIP
     if (layoutHeight > options?.maxHeight) {
         // Get new width based on maxHeight
-        const width = 0;
+        const width =
+            (options.maxHeight -
+                spacing *
+                    (imageAspects.length -
+                        1 -
+                        sum(imageAspects, (row) => (row.length - 1) / sum(row)))) /
+            sum(imageAspects, (row) => 1 / sum(row));
 
         return {
             width,
@@ -256,4 +266,89 @@ export function layoutGridByRows(
         height: layoutHeight,
         positions: layoutSeveralRows(imageAspects, containerWidth, layoutOptions),
     };
+}
+
+/**
+ * Get height of a row of aspect ratios from the width and spacing
+ */
+function getRowHeight(
+    aspects: number[],
+    rowWidth: number,
+    options?: { spacing?: number },
+): number {
+    const spacing = options?.spacing ?? 0;
+    return (rowWidth - spacing * (aspects.length - 1)) / sum(aspects);
+}
+
+/**
+ * Get height of full layout from an aspect ratio grid, width, and spacing
+ */
+function getLayoutHeight(
+    aspects: AspectRatioGrid,
+    containerWidth: number,
+    options?: { spacing?: number },
+): number {
+    return (
+        sum(aspects, (row) => getRowHeight(row, containerWidth, options)) +
+        (options?.spacing ?? 0) * (aspects.length - 1)
+    );
+}
+
+/**
+ * Layout images for a single row given the row height
+ */
+function layoutSingleRow(
+    aspects: number[],
+    height: number,
+    options?: {
+        spacing?: number;
+        offset?: { x?: number; y?: number };
+    },
+): Position[] {
+    let xOffset = options?.offset.x ?? 0;
+    const yOffset = options?.offset.y ?? 0;
+    const spacing = options?.spacing ?? 0;
+    const positions: Position[] = [];
+    // Create layout for the row
+    for (const aspect of aspects) {
+        const width = Math.round(height * aspect);
+        // Append position
+        positions.push({
+            y: yOffset,
+            x: xOffset,
+            width,
+            height,
+        });
+        // Accumulate xPos
+        xOffset += width + spacing;
+    }
+
+    return positions;
+}
+
+function layoutSeveralRows(
+    aspects: AspectRatioGrid,
+    width: number,
+    options?: {
+        spacing?: number;
+        offset?: { x?: number; y?: number };
+    },
+): Position[] {
+    const xOffset = options?.offset?.x ?? 0;
+    let yOffset = options?.offset?.y ?? 0;
+    const spacing = options?.spacing ?? 0;
+    const positions: Position[] = [];
+    for (const rowAspects of aspects) {
+        const rowHeight = getRowHeight(rowAspects, width, options);
+        // Reconstruct row based on aspect ratios
+        positions.push(
+            ...layoutSingleRow(rowAspects, rowHeight, {
+                spacing,
+                offset: { x: xOffset, y: yOffset },
+            }),
+        );
+        yOffset += rowHeight + spacing;
+    }
+
+    return positions;
 }
