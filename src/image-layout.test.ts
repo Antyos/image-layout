@@ -50,3 +50,7 @@ test('Layout spacing', () => {
     expect(layout.height).toBeCloseTo(200.67);
     expect(layout.width).toBeCloseTo(300);
 });
+
+// Test layoutSingleRow()
+// getRowHeight()
+// getLayoutHeight()

@@ -73,16 +73,8 @@ export function fixedPartition(
     return layoutGridByRows(partitions, options);
 }
 
-function getRowWidth(aspects: number[], idealHeight: number, spacing: number) {
-    return (
-        sum(
-            aspects,
-            (aspect) =>
-                (Math.round(idealHeight * aspect) - spacing * (aspects.length - 1)) /
-                aspects.length,
-        ) +
-        (aspects.length - 1) * spacing
-    );
+function getRowWidth(aspects: number[], height: number, spacing: number) {
+    return Math.round(sum(aspects) * height) + (aspects.length - 1) * spacing;
 }
 
 export function layoutGridByRows(
