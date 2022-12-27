@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "baseUrl": "src",
-        "outDir": "lib",
+        "outDir": "out",
         "inlineSourceMap": true,
         "noImplicitAny": true,
         "module": "esnext",
