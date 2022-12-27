@@ -20,7 +20,7 @@ describe('SingleRowLayout', () => {
     });
 
     test('should calculate the correct aspect ratio sum', () => {
-        expect(layout.getAspectRatioSum()).toBe(3);
+        expect(layout.totalAspectRatio).toBe(3);
     });
 
     test('should create the correct layout for a single row', () => {

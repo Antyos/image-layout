@@ -33,18 +33,24 @@ export class SingleRowLayout {
     }
 
     /**
+     * The sum of all child aspect ratios
+     */
+    public get totalAspectRatio() {
+        return sum(this.children);
+    }
+
+    /**
      * Get height of a row of aspect ratios from the width and spacing
      */
     public getRowHeight(width: number): number {
         return (width - this.spacing * (this.children.length - 1)) / sum(this.children);
     }
 
+    /**
+     * Get width of a row of aspect ratios from the height and spacing
+     */
     public getRowWidth(height: number) {
-        return height * this.getAspectRatioSum() + this.spacing * (this.length - 1);
-    }
-
-    public getAspectRatioSum() {
-        return sum(this.children);
+        return height * this.totalAspectRatio + this.spacing * (this.length - 1);
     }
 
     /**
@@ -124,9 +130,9 @@ export class MultiRowLayout {
                         1 -
                         sum(
                             this.children,
-                            (row) => (row.length - 1) / row.getAspectRatioSum(),
+                            (row) => (row.length - 1) / row.totalAspectRatio,
                         ))) /
-            sum(this.children, (row) => 1 / row.getAspectRatioSum())
+            sum(this.children, (row) => 1 / row.totalAspectRatio)
         );
     }
 
