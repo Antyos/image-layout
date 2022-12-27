@@ -11,14 +11,13 @@ export interface FixedPartitionConfig {
 }
 
 export interface RowLayoutConfig {
-    children: number[];
     align?: 'center' | undefined;
-    maxWidth: number;
+    maxWidth?: number;
     maxHeight?: number;
     spacing?: number;
 }
 
-class SingleRowLayout {
+export class SingleRowLayout {
     public readonly spacing: number;
     private readonly maxWidth?: number;
     private readonly maxHeight?: number;
@@ -41,16 +40,7 @@ class SingleRowLayout {
     }
 
     public getRowWidth(height: number) {
-        return (
-            sum(
-                this.children,
-                (child) =>
-                    (Math.round(height * child) -
-                        this.spacing * (this.children.length - 1)) /
-                    this.children.length,
-            ) +
-            (this.children.length - 1) * this.spacing
-        );
+        return height * this.getAspectRatioSum() + this.spacing * (this.length - 1);
     }
 
     public getAspectRatioSum() {
@@ -88,7 +78,7 @@ class SingleRowLayout {
 }
 
 // Will eventually be a generic column layout
-class MultiRowLayout {
+export class MultiRowLayout {
     public readonly spacing: number;
     private readonly containerWidth?: number;
     private readonly containerHeight?: number;

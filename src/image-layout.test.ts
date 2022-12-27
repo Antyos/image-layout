@@ -1,4 +1,37 @@
-import { layoutGridByRows } from './image-layout';
+import { layoutGridByRows, SingleRowLayout } from './image-layout';
+
+describe('SingleRowLayout', () => {
+    let layout: SingleRowLayout;
+
+    beforeEach(() => {
+        layout = new SingleRowLayout([1, 1.5, 0.5], { spacing: 10 });
+    });
+
+    test('should initialize with the correct spacing', () => {
+        expect(layout.spacing).toBe(10);
+    });
+
+    test('should calculate the correct row height', () => {
+        expect(layout.getRowHeight(320)).toBe(100);
+    });
+
+    test('should calculate the correct row width', () => {
+        expect(layout.getRowWidth(100)).toBe(320);
+    });
+
+    test('should calculate the correct aspect ratio sum', () => {
+        expect(layout.getAspectRatioSum()).toBe(3);
+    });
+
+    test('should create the correct layout for a single row', () => {
+        const positions = layout.layoutSingleRow(100, { offset: { x: 20, y: 30 } });
+        expect(positions).toEqual([
+            { x: 20, y: 30, width: 100, height: 100 },
+            { x: 130, y: 30, width: 150, height: 100 },
+            { x: 290, y: 30, width: 50, height: 100 },
+        ]);
+    });
+});
 
 describe('Grid layout bounds with no spacing', () => {
     const aspects = [
