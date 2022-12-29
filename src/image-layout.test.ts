@@ -1,4 +1,4 @@
-import { layoutGridByRows, SingleRowLayout } from './image-layout';
+import { layoutGridByRows, MultiRowLayout, SingleRowLayout } from './image-layout';
 
 describe('SingleRowLayout', () => {
     let layout: SingleRowLayout;
@@ -61,29 +61,92 @@ describe('Grid layout bounds with no spacing', () => {
     });
 });
 
-test('Layout spacing', () => {
-    const aspects = [
-        [1.25, 1.5, 1],
-        [0.75, 1.75],
-    ];
+describe('MultiRowLayout', () => {
+    describe('constructor', () => {
+        it('should accept an array of SingleRowLayout instances', () => {
+            const singleRowLayout1 = new SingleRowLayout([1, 2], { spacing: 10 });
+            const singleRowLayout2 = new SingleRowLayout([1, 2, 3], { spacing: 10 });
+            const multiRowLayout = new MultiRowLayout(
+                [singleRowLayout1, singleRowLayout2],
+                { spacing: 20 },
+            );
+            expect(multiRowLayout.children).toHaveLength(2);
+            expect(multiRowLayout.children[0]).toBeInstanceOf(SingleRowLayout);
+            expect(multiRowLayout.children[1]).toBeInstanceOf(SingleRowLayout);
+        });
 
-    const layout = layoutGridByRows(aspects, { maxWidth: 300, spacing: 10 });
+        it('should convert an array of number arrays to SingleRowLayout instances', () => {
+            const children = [[1], [1, 2]];
+            const multiRowLayout = new MultiRowLayout(children, {});
+            expect(multiRowLayout.children).toHaveLength(2);
+            expect(multiRowLayout.children[0]).toBeInstanceOf(SingleRowLayout);
+            expect(multiRowLayout.children[1]).toBeInstanceOf(SingleRowLayout);
+        });
+    });
 
-    expect(layout.positions).toBeDeepCloseTo(
-        [
-            { height: 74.67, width: 93, x: 0, y: 0 },
-            { height: 74.67, width: 112, x: 103, y: 0 },
-            { height: 74.67, width: 75, x: 225, y: 0 },
-            { height: 116, width: 87, x: 0, y: 84.67 },
-            { height: 116, width: 203, x: 97, y: 84.67 },
-        ],
-        2,
-    );
+    describe('getLayoutHeight', () => {
+        it('should return the correct height for a layout with a single row', () => {
+            const singleRowLayout = new SingleRowLayout([1, 2], { spacing: 10 });
+            const multiRowLayout = new MultiRowLayout([singleRowLayout], {
+                spacing: 20,
+            });
+            expect(multiRowLayout.getLayoutHeight(100)).toEqual(30);
+        });
 
-    expect(layout.height).toBeCloseTo(200.67);
-    expect(layout.width).toBeCloseTo(300);
+        it('should return the correct height for a layout with multiple rows', () => {
+            const singleRowLayout1 = new SingleRowLayout([1, 2], { spacing: 10 });
+            const singleRowLayout2 = new SingleRowLayout([1, 0.5, 1.5], {
+                spacing: 10,
+            });
+            const multiRowLayout = new MultiRowLayout(
+                [singleRowLayout1, singleRowLayout2],
+                { spacing: 20 },
+            );
+            expect(multiRowLayout.getLayoutHeight(100)).toEqual(80);
+        });
+    });
+
+    describe('getLayoutWidth', () => {
+        it('should return the correct width for a layout with a single row', () => {
+            const singleRowLayout = new SingleRowLayout([1, 2], { spacing: 10 });
+            const multiRowLayout = new MultiRowLayout([singleRowLayout], {
+                spacing: 20,
+            });
+            expect(multiRowLayout.getLayoutWidth(30)).toEqual(100);
+        });
+
+        it('should return the correct width for a layout with multiple rows', () => {
+            const singleRowLayout1 = new SingleRowLayout([1, 2], { spacing: 10 });
+            const singleRowLayout2 = new SingleRowLayout([1, 0.5, 1.5], {
+                spacing: 10,
+            });
+            const multiRowLayout = new MultiRowLayout(
+                [singleRowLayout1, singleRowLayout2],
+                { spacing: 20 },
+            );
+            expect(multiRowLayout.getLayoutWidth(80)).toEqual(130);
+        });
+    });
+
+    describe('layoutSeveralRows', () => {
+        it('should return the correct layout for multiple rows', () => {
+            const aspects = [
+                [1.25, 1.5, 1],
+                [0.75, 1.75],
+            ];
+
+            const layout = new MultiRowLayout(aspects, { maxWidth: 300, spacing: 10 });
+
+            expect(layout.layoutSeveralRows(300)).toBeDeepCloseTo(
+                [
+                    { height: 74.67, width: 93, x: 0, y: 0 },
+                    { height: 74.67, width: 112, x: 103, y: 0 },
+                    { height: 74.67, width: 75, x: 225, y: 0 },
+                    { height: 116, width: 87, x: 0, y: 84.67 },
+                    { height: 116, width: 203, x: 97, y: 84.67 },
+                ],
+                2,
+            );
+        });
+    });
 });
-
-// Test layoutSingleRow()
-// getRowHeight()
-// getLayoutHeight()
