@@ -8,3 +8,13 @@ export function sum<T>(
         ? (iter as T[]).reduce((sum, element) => sum + callback(element), 0)
         : (iter as number[]).reduce((sum, x) => sum + x, 0);
 }
+
+/**
+ * Returns true if `value` is an array of `constructor`
+ */
+export function isArrayOf<T>(
+    value: unknown,
+    constructor: new (...args: any[]) => T,
+): value is T[] {
+    return Array.isArray(value) && value.every((item) => item instanceof constructor);
+}
