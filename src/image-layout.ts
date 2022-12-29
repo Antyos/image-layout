@@ -1,6 +1,6 @@
 import { AspectRatioGrid, ImageLayout, Position, Size } from './types';
 import linearPartition from './linear-partition';
-import { sum } from './utils';
+import { sum, isArrayOf } from './utils';
 
 export interface FixedPartitionConfig {
     align?: 'center' | undefined;
@@ -86,13 +86,17 @@ export class SingleRowLayout {
 // Will eventually be a generic column layout
 export class MultiRowLayout {
     public readonly spacing: number;
+    public readonly children: SingleRowLayout[];
     private readonly containerWidth?: number;
     private readonly containerHeight?: number;
 
     public constructor(
-        private readonly children: SingleRowLayout[],
+        children: SingleRowLayout[] | number[][],
         config: RowLayoutConfig,
     ) {
+        this.children = isArrayOf(children, SingleRowLayout)
+            ? children
+            : children.map((row: number[]) => new SingleRowLayout(row, config));
         this.spacing = config.spacing ?? 0;
         // Determine the container width and height based on potential maximums
         // Definitely a more elegant way exists
