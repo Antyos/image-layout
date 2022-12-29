@@ -94,15 +94,15 @@ describe('MultiRowLayout', () => {
         });
 
         it('should return the correct height for a layout with multiple rows', () => {
-            const singleRowLayout1 = new SingleRowLayout([1, 2], { spacing: 10 });
-            const singleRowLayout2 = new SingleRowLayout([1, 0.5, 1.5], {
+            const singleRowLayout1 = new SingleRowLayout([0.5, 1.5], { spacing: 10 });
+            const singleRowLayout2 = new SingleRowLayout([2, 0.75, 1.25], {
                 spacing: 10,
             });
             const multiRowLayout = new MultiRowLayout(
                 [singleRowLayout1, singleRowLayout2],
                 { spacing: 20 },
             );
-            expect(multiRowLayout.getLayoutHeight(100)).toEqual(80);
+            expect(multiRowLayout.getLayoutHeight(120)).toEqual(100);
         });
     });
 
@@ -112,19 +112,19 @@ describe('MultiRowLayout', () => {
             const multiRowLayout = new MultiRowLayout([singleRowLayout], {
                 spacing: 20,
             });
-            expect(multiRowLayout.getLayoutWidth(30)).toEqual(100);
+            expect(multiRowLayout.getLayoutWidth(30)).toBeCloseTo(100, 3);
         });
 
         it('should return the correct width for a layout with multiple rows', () => {
-            const singleRowLayout1 = new SingleRowLayout([1, 2], { spacing: 10 });
-            const singleRowLayout2 = new SingleRowLayout([1, 0.5, 1.5], {
+            const singleRowLayout1 = new SingleRowLayout([0.5, 1.5], { spacing: 10 });
+            const singleRowLayout2 = new SingleRowLayout([2, 0.75, 1.25], {
                 spacing: 10,
             });
             const multiRowLayout = new MultiRowLayout(
                 [singleRowLayout1, singleRowLayout2],
                 { spacing: 20 },
             );
-            expect(multiRowLayout.getLayoutWidth(80)).toEqual(130);
+            expect(multiRowLayout.getLayoutWidth(100)).toEqual(120);
         });
     });
 

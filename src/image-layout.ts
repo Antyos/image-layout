@@ -128,14 +128,12 @@ export class MultiRowLayout {
     // Not going to work as is
     public getLayoutWidth(height: number): number {
         return (
-            (height -
-                this.spacing *
-                    (this.children.length -
-                        1 -
-                        sum(
-                            this.children,
-                            (row) => (row.length - 1) / row.totalAspectRatio,
-                        ))) /
+            (height +
+                sum(
+                    this.children,
+                    (row) => ((row.length - 1) * row.spacing) / row.totalAspectRatio,
+                ) -
+                this.spacing * (this.children.length - 1)) /
             sum(this.children, (row) => 1 / row.totalAspectRatio)
         );
     }
