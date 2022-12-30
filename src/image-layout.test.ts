@@ -8,7 +8,7 @@ describe('SingleRowLayout', () => {
     });
 
     test('should initialize with the correct spacing', () => {
-        expect(layout.spacing).toBe(10);
+        expect(layout.config.spacing).toBe(10);
     });
 
     test('should calculate the correct row height', () => {
@@ -20,7 +20,7 @@ describe('SingleRowLayout', () => {
     });
 
     test('should calculate the correct aspect ratio sum', () => {
-        expect(layout.totalAspectRatio).toBe(3);
+        expect(layout.totalRatio).toBe(3);
     });
 
     test('should create the correct layout for a single row', () => {
@@ -70,17 +70,17 @@ describe('MultiRowLayout', () => {
                 [singleRowLayout1, singleRowLayout2],
                 { spacing: 20 },
             );
-            expect(multiRowLayout.children).toHaveLength(2);
-            expect(multiRowLayout.children[0]).toBeInstanceOf(SingleRowLayout);
-            expect(multiRowLayout.children[1]).toBeInstanceOf(SingleRowLayout);
+            expect(multiRowLayout.rows).toHaveLength(2);
+            expect(multiRowLayout.rows[0]).toBeInstanceOf(SingleRowLayout);
+            expect(multiRowLayout.rows[1]).toBeInstanceOf(SingleRowLayout);
         });
 
         it('should convert an array of number arrays to SingleRowLayout instances', () => {
             const children = [[1], [1, 2]];
             const multiRowLayout = new MultiRowLayout(children, {});
-            expect(multiRowLayout.children).toHaveLength(2);
-            expect(multiRowLayout.children[0]).toBeInstanceOf(SingleRowLayout);
-            expect(multiRowLayout.children[1]).toBeInstanceOf(SingleRowLayout);
+            expect(multiRowLayout.rows).toHaveLength(2);
+            expect(multiRowLayout.rows[0]).toBeInstanceOf(SingleRowLayout);
+            expect(multiRowLayout.rows[1]).toBeInstanceOf(SingleRowLayout);
         });
     });
 

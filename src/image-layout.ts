@@ -17,40 +17,45 @@ export interface RowLayoutConfig {
     spacing?: number;
 }
 
-export class SingleRowLayout {
-    public readonly spacing: number;
-    private readonly maxWidth?: number;
-    private readonly maxHeight?: number;
+const defaultRowLayoutConfig: RowLayoutConfig = {
+    spacing: 0,
+} as const;
 
-    public constructor(private readonly children: number[], config: RowLayoutConfig) {
-        this.spacing = config.spacing ?? 0;
-        this.maxWidth = config.maxWidth;
-        this.maxHeight = config.maxHeight;
+export class SingleRowLayout {
+    public readonly config: typeof defaultRowLayoutConfig;
+
+    public constructor(public readonly ratios: number[], config?: RowLayoutConfig) {
+        this.config = {
+            ...defaultRowLayoutConfig,
+            ...config,
+        };
     }
 
     public get length() {
-        return this.children.length;
+        return this.ratios.length;
     }
 
     /**
      * The sum of all child aspect ratios
      */
-    public get totalAspectRatio() {
-        return sum(this.children);
+    public get totalRatio() {
+        return sum(this.ratios);
     }
 
     /**
      * Get height of a row of aspect ratios from the width and spacing
      */
     public getRowHeight(width: number): number {
-        return (width - this.spacing * (this.children.length - 1)) / sum(this.children);
+        return (
+            (width - this.config.spacing * (this.ratios.length - 1)) / sum(this.ratios)
+        );
     }
 
     /**
      * Get width of a row of aspect ratios from the height and spacing
      */
     public getRowWidth(height: number) {
-        return height * this.totalAspectRatio + this.spacing * (this.length - 1);
+        return height * this.totalRatio + this.config.spacing * (this.length - 1);
     }
 
     /**
@@ -66,8 +71,8 @@ export class SingleRowLayout {
         const yOffset = options?.offset.y ?? 0;
         const positions: Position[] = [];
         // Create layout for the row
-        for (const child of this.children) {
-            const width = Math.round(height * child);
+        for (const ratio of this.ratios) {
+            const width = Math.round(height * ratio);
             // Append position
             positions.push({
                 y: yOffset,
@@ -76,7 +81,7 @@ export class SingleRowLayout {
                 height,
             });
             // Accumulate xPos
-            xOffset += width + this.spacing;
+            xOffset += width + this.config.spacing;
         }
 
         return positions;
@@ -85,33 +90,40 @@ export class SingleRowLayout {
 
 // Will eventually be a generic column layout
 export class MultiRowLayout {
-    public readonly spacing: number;
-    public readonly children: SingleRowLayout[];
+    public readonly config: RowLayoutConfig;
+    public readonly rows: SingleRowLayout[];
     private readonly containerWidth?: number;
     private readonly containerHeight?: number;
 
-    public constructor(
-        children: SingleRowLayout[] | number[][],
-        config: RowLayoutConfig,
-    ) {
-        this.children = isArrayOf(children, SingleRowLayout)
-            ? children
-            : children.map((row: number[]) => new SingleRowLayout(row, config));
-        this.spacing = config.spacing ?? 0;
+    public constructor(rows: SingleRowLayout[] | number[][], config?: RowLayoutConfig) {
+        // Coerce rows to SingleRowLayout
+        this.rows = isArrayOf(rows, SingleRowLayout)
+            ? rows
+            : rows.map((row: number[]) => new SingleRowLayout(row, config));
+
+        // Apply default config
+        this.config = {
+            ...defaultRowLayoutConfig,
+            ...config,
+        };
+
         // Determine the container width and height based on potential maximums
         // Definitely a more elegant way exists
-        if (config.maxWidth !== undefined && config.maxHeight !== undefined) {
-            const layoutHeight = this.getLayoutHeight(config.maxWidth);
-            if (layoutHeight > config.maxHeight) {
-                this.containerHeight = config.maxHeight;
-                this.containerWidth = this.getLayoutWidth(config.maxHeight);
+        if (this.config.maxWidth !== undefined && this.config.maxHeight !== undefined) {
+            const layoutHeight = this.getLayoutHeight(this.config.maxWidth);
+            if (layoutHeight > this.config.maxHeight) {
+                this.containerHeight = this.config.maxHeight;
+                this.containerWidth = this.getLayoutWidth(this.config.maxHeight);
             } else {
-                this.containerWidth = config.maxWidth;
+                this.containerWidth = this.config.maxWidth;
                 this.containerHeight = layoutHeight;
             }
-        } else if (config.maxWidth !== undefined && config.maxHeight === undefined) {
-            this.containerWidth = config.maxWidth;
-            this.containerHeight = this.getLayoutHeight(config.maxWidth);
+        } else if (
+            this.config.maxWidth !== undefined &&
+            this.config.maxHeight === undefined
+        ) {
+            this.containerWidth = this.config.maxWidth;
+            this.containerHeight = this.getLayoutHeight(this.config.maxWidth);
         }
     }
 
@@ -120,8 +132,8 @@ export class MultiRowLayout {
      */
     public getLayoutHeight(width: number): number {
         return (
-            sum(this.children, (row) => row.getRowHeight(width)) +
-            this.spacing * (this.children.length - 1)
+            sum(this.rows, (row) => row.getRowHeight(width)) +
+            this.config.spacing * (this.rows.length - 1)
         );
     }
 
@@ -130,11 +142,11 @@ export class MultiRowLayout {
         return (
             (height +
                 sum(
-                    this.children,
-                    (row) => ((row.length - 1) * row.spacing) / row.totalAspectRatio,
+                    this.rows,
+                    (row) => ((row.length - 1) * row.config.spacing) / row.totalRatio,
                 ) -
-                this.spacing * (this.children.length - 1)) /
-            sum(this.children, (row) => 1 / row.totalAspectRatio)
+                this.config.spacing * (this.rows.length - 1)) /
+            sum(this.rows, (row) => 1 / row.totalRatio)
         );
     }
 
@@ -147,7 +159,7 @@ export class MultiRowLayout {
         const xOffset = options?.offset?.x ?? 0;
         let yOffset = options?.offset?.y ?? 0;
         const positions: Position[] = [];
-        for (const row of this.children) {
+        for (const row of this.rows) {
             const rowHeight = row.getRowHeight(width);
             // Reconstruct row based on aspect ratios
             positions.push(
@@ -155,7 +167,7 @@ export class MultiRowLayout {
                     offset: { x: xOffset, y: yOffset },
                 }),
             );
-            yOffset += rowHeight + this.spacing;
+            yOffset += rowHeight + this.config.spacing;
         }
 
         return positions;
@@ -189,6 +201,8 @@ export function fixedPartition(
 
     // Adjust photo sizes
     if (rowsNeeded < 1) {
+        const layout = new SingleRowLayout(aspects, options);
+
         // (2a) Fallback to just standard size
         // If options.maxHeight is defined and less than idealHeight, use it as the height
         const height =
@@ -197,13 +211,10 @@ export function fixedPartition(
         // Get amount to pad left for centering
         const padLeft =
             options.align === 'center'
-                ? Math.floor(
-                      (containerWidth - getRowWidth(aspects, idealHeight, spacing)) / 2,
-                  )
+                ? Math.floor((containerWidth - layout.getRowWidth(idealHeight)) / 2)
                 : 0;
 
-        const positions = layoutSingleRow(aspects, height, {
-            spacing,
+        const positions = layout.layoutSingleRow(height, {
             offset: { x: padLeft },
         });
         // Return layout
@@ -225,10 +236,6 @@ export function fixedPartition(
     return layoutGridByRows(partitions, options);
 }
 
-function getRowWidth(aspects: number[], height: number, spacing: number) {
-    return Math.round(sum(aspects) * height) + (aspects.length - 1) * spacing;
-}
-
 export function layoutGridByRows(
     imageAspects: number[][],
     options: FixedPartitionConfig,
@@ -236,8 +243,10 @@ export function layoutGridByRows(
     const spacing = options.spacing ?? 0;
     const containerWidth = options.maxWidth;
 
+    const layout = new MultiRowLayout(imageAspects, options);
+
     const layoutOptions = { spacing: options.spacing };
-    const layoutHeight = getLayoutHeight(imageAspects, containerWidth, layoutOptions);
+    const layoutHeight = layout.getLayoutHeight(containerWidth);
 
     // Recalculate container if we exceeded the maximum height
     // WIP
@@ -254,7 +263,7 @@ export function layoutGridByRows(
         return {
             width,
             height: options.maxHeight,
-            positions: layoutSeveralRows(imageAspects, width, layoutOptions),
+            positions: layout.layoutSeveralRows(width),
         };
     }
 
@@ -262,91 +271,6 @@ export function layoutGridByRows(
     return {
         width: containerWidth,
         height: layoutHeight,
-        positions: layoutSeveralRows(imageAspects, containerWidth, layoutOptions),
+        positions: layout.layoutSeveralRows(containerWidth),
     };
-}
-
-/**
- * Get height of a row of aspect ratios from the width and spacing
- */
-function getRowHeight(
-    aspects: number[],
-    rowWidth: number,
-    options?: { spacing?: number },
-): number {
-    const spacing = options?.spacing ?? 0;
-    return (rowWidth - spacing * (aspects.length - 1)) / sum(aspects);
-}
-
-/**
- * Get height of full layout from an aspect ratio grid, width, and spacing
- */
-function getLayoutHeight(
-    aspects: AspectRatioGrid,
-    containerWidth: number,
-    options?: { spacing?: number },
-): number {
-    return (
-        sum(aspects, (row) => getRowHeight(row, containerWidth, options)) +
-        (options?.spacing ?? 0) * (aspects.length - 1)
-    );
-}
-
-/**
- * Layout images for a single row given the row height
- */
-function layoutSingleRow(
-    aspects: number[],
-    height: number,
-    options?: {
-        spacing?: number;
-        offset?: { x?: number; y?: number };
-    },
-): Position[] {
-    let xOffset = options?.offset.x ?? 0;
-    const yOffset = options?.offset.y ?? 0;
-    const spacing = options?.spacing ?? 0;
-    const positions: Position[] = [];
-    // Create layout for the row
-    for (const aspect of aspects) {
-        const width = Math.round(height * aspect);
-        // Append position
-        positions.push({
-            y: yOffset,
-            x: xOffset,
-            width,
-            height,
-        });
-        // Accumulate xPos
-        xOffset += width + spacing;
-    }
-
-    return positions;
-}
-
-function layoutSeveralRows(
-    aspects: AspectRatioGrid,
-    width: number,
-    options?: {
-        spacing?: number;
-        offset?: { x?: number; y?: number };
-    },
-): Position[] {
-    const xOffset = options?.offset?.x ?? 0;
-    let yOffset = options?.offset?.y ?? 0;
-    const spacing = options?.spacing ?? 0;
-    const positions: Position[] = [];
-    for (const rowAspects of aspects) {
-        const rowHeight = getRowHeight(rowAspects, width, options);
-        // Reconstruct row based on aspect ratios
-        positions.push(
-            ...layoutSingleRow(rowAspects, rowHeight, {
-                spacing,
-                offset: { x: xOffset, y: yOffset },
-            }),
-        );
-        yOffset += rowHeight + spacing;
-    }
-
-    return positions;
 }
