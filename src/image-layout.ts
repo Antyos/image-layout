@@ -40,7 +40,9 @@ export function fixedPartition(
         // (2a) Fallback to just standard size
         // If options.maxHeight is defined and less than idealHeight, use it as the height
         const height =
-            options?.maxHeight < idealHeight ? options.maxHeight : idealHeight;
+            options.maxHeight && options.maxHeight < idealHeight
+                ? options.maxHeight
+                : idealHeight;
 
         // Get amount to pad left for centering
         const padLeft =
@@ -89,7 +91,7 @@ export function layoutGridByRows(
 
     // Recalculate container if we exceeded the maximum height
     // WIP
-    if (layoutHeight > options?.maxHeight) {
+    if (options.maxHeight && options.maxHeight < layoutHeight) {
         // Get new width based on maxHeight
         const width =
             (options.maxHeight -
@@ -151,8 +153,8 @@ function layoutSingleRow(
         offset?: { x?: number; y?: number };
     },
 ): Position[] {
-    let xOffset = options?.offset.x ?? 0;
-    const yOffset = options?.offset.y ?? 0;
+    let xOffset = options?.offset?.x ?? 0;
+    const yOffset = options?.offset?.y ?? 0;
     const spacing = options?.spacing ?? 0;
     const positions: Position[] = [];
     // Create layout for the row
