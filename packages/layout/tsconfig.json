@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "baseUrl": "src",
+        "outDir": "out",
+        "composite": true,
+        "declaration": true,
+        "declarationMap": true,
+        "incremental": true
+    },
+    "include": ["src"]
+}

@@ -2,6 +2,7 @@
     "compilerOptions": {
         "baseUrl": "src",
         "outDir": "out",
+        "composite": true,
         "inlineSourceMap": true,
         "noImplicitAny": true,
         "module": "esnext",
@@ -12,10 +13,15 @@
         "declaration": true,
         "declarationMap": true,
         "allowSyntheticDefaultImports": true,
-        "experimentalDecorators": true,
+        "experimentalDecorators": true
     },
-    "include": ["src"],
+    // "include": ["src"],
     // Uncommenting this breaks the deepCloseTo patch. Not sure if it is better to be uncommented, though.
     // Roughly based on: https://youtrack.jetbrains.com/issue/WEB-42350/matcher-for-jest-is-not-recognized-but-it-is-runable#focus=Comments-27-3779595.0-0
     // "exclude": ["src/**/*.test.*"],
+    "references": [
+        {
+            "path": "packages/layout"
+        }
+    ]
 }
